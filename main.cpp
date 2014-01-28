@@ -104,7 +104,7 @@ public:
 		return updatedDead;
 	}
 
-	void updateGrid(void)
+	void increaseGeneration(void)
 	{
 		updatedLiving = updateLiving();
 		updatedDead = updateDead();
@@ -115,8 +115,18 @@ public:
 
 	void printout(void)
 	{
-		for (it = living.begin(); it != living.end(); it++)
-			std::cout << *it << " is alive!" << std::endl;
+		for (int row = 0; row < GRID_WIDTH; row++)
+		{
+			for (int col = 0; col < GRID_WIDTH; col++)
+			{
+				int cell = row * GRID_WIDTH + col;
+
+				if (isLiving(cell)) { std::cout << "O "; }
+				else { std::cout << "X "; }
+			}
+
+			std::cout << std::endl;
+		}
 	}
 };
 
@@ -138,10 +148,15 @@ int main(void)
 	std::cout<< "Before updating the grid: " << std::endl;
 	populace.printout();
 
-	populace.updateGrid();
+	populace.increaseGeneration();
 	std::cout << std::endl;
 
 	std::cout<< "After updating the grid: " << std::endl;
+	populace.printout();
+	std::cout << std::endl;
+
+	std::cout << "After a second update: " << std::endl;
+	populace.increaseGeneration();
 	populace.printout();
 
 	return 0;
