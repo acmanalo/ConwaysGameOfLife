@@ -29,6 +29,8 @@ class Populace
 private:
 	std::set<int>::iterator it;
 	std::set<int> living;
+	std::set<int> updatedLiving;
+	std::set<int> updatedDead;
 
 	std::vector<int> findNeighbors(int cell)
 	{
@@ -52,8 +54,6 @@ public:
 		return false;
 	}
 
-	
-
 	int livingNeighbors(int cellNumber)
 	{
 		std::vector<int> neighbors = findNeighbors(cellNumber);
@@ -72,10 +72,13 @@ public:
 
 		for (it = living.begin(); it != living.end(); it++)
 		{
-			int neighborsLiving = livingNeighbors(*it);
+			if (*it > 0)
+			{
+				int neighborsLiving = livingNeighbors(*it);
 
-			if (neighborsLiving == 2 || neighborsLiving ==3)
-				updatedLiving.insert(*it);
+				if (neighborsLiving == 2 || neighborsLiving ==3)
+					updatedLiving.insert(*it);
+			}
 		}
 
 		return updatedLiving;
@@ -83,7 +86,37 @@ public:
 
 	std::set<int> updateDead(void)
 	{
+		std::set<int> updatedDead;
+		std::set<int> toExamine;
+		std::vector<int>::iterator iter;
 
+		for (it = living.begin(); it != living.end(); it++)
+		{
+			std::vector<int> neighbors = findNeighbors(*it);
+
+			toExamine.insert(neighbors.begin(), neighbors.end());
+		}
+
+		for (it = toExamine.begin(); it != toExamine.end(); it++)
+			if (*it > 0 && livingNeighbors(*it) == 3)
+				updatedDead.insert(*it);
+
+		return updatedDead;
+	}
+
+	void updateGrid(void)
+	{
+		updatedLiving = updateLiving();
+		updatedDead = updateDead();
+
+		living = updatedLiving;
+		living.insert(updatedDead.begin(), updatedDead.end());
+	}
+
+	void printout(void)
+	{
+		for (it = living.begin(); it != living.end(); it++)
+			std::cout << *it << " is alive!" << std::endl;
 	}
 };
 
@@ -95,15 +128,21 @@ Populace::Populace(int *init, int size)
 int main(void)
 {
 	std::set<int>::iterator it2;
+	std::set<int> testingSet;
+
 	int init[] = {3, 4, 5, 13, 15, 23, 24, 25};
 	int size = sizeof(init) / sizeof(int);
 
 	Populace populace(init, size);
 
-	std::set<int> updated = populace.updateLiving();
+	std::cout<< "Before updating the grid: " << std::endl;
+	populace.printout();
 
-	for (it2 = updated.begin(); it2 != updated.end(); it2++)
-		std::cout << *it2 << " is alive!" << std::endl;
+	populace.updateGrid();
+	std::cout << std::endl;
+
+	std::cout<< "After updating the grid: " << std::endl;
+	populace.printout();
 
 	return 0;
 }
