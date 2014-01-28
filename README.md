@@ -1,7 +1,7 @@
 ConwaysGameOfLife
 =================
 
-Abbout
+About
 ------
 Clone of Conway's Game of Life in which the following rules are applied:
 - Any live cell with fewer than two live neighbours dies
