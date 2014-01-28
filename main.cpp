@@ -12,14 +12,14 @@ Rules:
 #include <algorithm>
 #include <vector>
 #include <array>
-#include <forward_list>
 #include <set>
 #include <iostream>
+#include <Windows.h>
 
-const int GRID_WIDTH = 10; // Number of rows / columns in grid
+const int GRID_WIDTH = 200; // Number of rows / columns in grid
 // Overflow on anything higher than 55
 
-const int CELL_WIDTH = 10;
+const int CELL_WIDTH = 4;
 
 const int WINDOW_SIZE = GRID_WIDTH * CELL_WIDTH;
 const int CELLS = GRID_WIDTH * GRID_WIDTH;
@@ -28,7 +28,6 @@ class Populace
 {
 private:
 	std::set<int>::iterator it;
-	std::set<int> living;
 	std::set<int> updatedLiving;
 	std::set<int> updatedDead;
 
@@ -45,6 +44,7 @@ private:
 	}
 	
 public:
+	std::set<int> living;
 	Populace(int[], int);
 	
 	bool isLiving(int cellNumber)
@@ -137,27 +137,48 @@ Populace::Populace(int *init, int size)
 
 int main(void)
 {
-	std::set<int>::iterator it2;
+	std::set<int>::iterator it;
 	std::set<int> testingSet;
 
-	int init[] = {3, 4, 5, 13, 15, 23, 24, 25};
+	int init[] = {10040, 10041, 10042, 10240, 10242, 10440, 10441, 10442};
 	int size = sizeof(init) / sizeof(int);
 
 	Populace populace(init, size);
 
-	std::cout<< "Before updating the grid: " << std::endl;
-	populace.printout();
+	sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE), "Conway's Game Of Life");
 
-	populace.increaseGeneration();
-	std::cout << std::endl;
+	while (window.isOpen())
+	{
+		sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
 
-	std::cout<< "After updating the grid: " << std::endl;
-	populace.printout();
-	std::cout << std::endl;
 
-	std::cout << "After a second update: " << std::endl;
-	populace.increaseGeneration();
-	populace.printout();
+		for (it = populace.living.begin(); it != populace.living.end(); it++)
+		{
+			int col = *it % GRID_WIDTH - 1;
+			int row = (*it - col) / GRID_WIDTH;
+
+			int x = col * CELL_WIDTH;
+			int y = row * CELL_WIDTH;
+
+			sf::RectangleShape rect(sf::Vector2f(CELL_WIDTH, CELL_WIDTH));
+			rect.setPosition(x, y);
+			rect.setFillColor(sf::Color::White);
+
+			window.draw(rect);
+		}
+
+		window.display();
+
+		populace.increaseGeneration();
+
+		Sleep(1000);
+		window.clear();
+	}
 
 	return 0;
 }
