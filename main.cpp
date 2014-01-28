@@ -15,6 +15,8 @@ Rules:
 #include <set>
 #include <iostream>
 #include <Windows.h>
+#include <string>
+#include <sstream>
 
 const int GRID_WIDTH = 200; // Number of rows / columns in grid
 // Overflow on anything higher than 55
@@ -23,6 +25,8 @@ const int CELL_WIDTH = 4;
 
 const int WINDOW_SIZE = GRID_WIDTH * CELL_WIDTH;
 const int CELLS = GRID_WIDTH * GRID_WIDTH;
+
+const int SLEEP_DELAY = 50;
 
 class Populace
 {
@@ -46,6 +50,7 @@ private:
 public:
 	std::set<int> living;
 	Populace(int[], int);
+	int generation;
 	
 	bool isLiving(int cellNumber)
 	{
@@ -106,6 +111,7 @@ public:
 
 	void increaseGeneration(void)
 	{
+		generation++;
 		updatedLiving = updateLiving();
 		updatedDead = updateDead();
 
@@ -137,15 +143,20 @@ Populace::Populace(int *init, int size)
 
 int main(void)
 {
+	sf::Font font;
+	font.loadFromFile("./arial.ttf");
 	std::set<int>::iterator it;
 	std::set<int> testingSet;
+	int i = 10100;
+	int init[] = {i, i+1, i+2, i+3, i+4, i+5, i+6, i+7, i+9, i+10, i+11, i+12, i+13,
+		i+17, i+18, i+19, i+26, i+27, i+28, i+29, i+30, i+31, i+32, i+34, i+35, i+36, i+37, i+38};
 
-	int init[] = {10040, 10041, 10042, 10240, 10242, 10440, 10441, 10442};
 	int size = sizeof(init) / sizeof(int);
 
 	Populace populace(init, size);
 
 	sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE), "Conway's Game Of Life");
+	populace.generation = 0;
 
 	while (window.isOpen())
 	{
@@ -172,43 +183,24 @@ int main(void)
 			window.draw(rect);
 		}
 
+		sf::Text stats;
+		stats.setFont(font);
+		stats.setCharacterSize(12);
+		stats.setColor(sf::Color::White);
+		stats.setPosition(5, 5);
+		std::stringstream ss;
+		ss << "Generation: " << populace.generation << "  Live Cells: " << populace.living.size();
+		stats.setString(ss.str());
+		window.draw(stats);
+
 		window.display();
 
 		populace.increaseGeneration();
+		populace.generation++;
 
-		Sleep(1000);
+		Sleep(SLEEP_DELAY);
 		window.clear();
 	}
 
 	return 0;
 }
-
-/*sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE), 
-		"Conway's Game of Life");
-
-	bool isAlive[CELLS];
-	std::fill_n(isAlive, CELLS, false);*/
-
-	//sf::RectangleShape rectangles[CELLS];
-
-	//std::fill_n(rectangles, CELLS, sf::RectangleShape(sf::Vector2f(CELL_WIDTH, CELL_WIDTH)));
-
-	//rectangles[50].setFillColor(sf::Color::Blue);
-	//rectangles[50].setPosition(100,100);
-
-	//while (window.isOpen())
- //   {
- //       sf::Event event;
- //       while (window.pollEvent(event))
- //       {
- //           if (event.type == sf::Event::Closed)
- //               window.close();
- //       }
-
-	//	window.clear();
-
-	//	window.draw(rectangles[0]);
-	//	window.draw(rectangles[50]);
-
-	//	window.display();
-	//}
